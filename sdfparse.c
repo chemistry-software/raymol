@@ -28,8 +28,7 @@ Molecule parseSDF(const char *filename) {
 
     char line[MAX_LINE_LENGTH];
     while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
-        // printf("%s", line);
-        if (strlen(line) > 3 && isdigit(line[0])) {
+        if (strlen(line) > 3 && isdigit(line[4]) && isalpha(line[31])) {
             // this wonky shit assumes tab separated coords
             sscanf(line, "%f\t%f\t%f\t%s", &mol.atoms[mol.num_atoms].x,
                    &mol.atoms[mol.num_atoms].y, &mol.atoms[mol.num_atoms].z,
