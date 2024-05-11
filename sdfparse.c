@@ -6,13 +6,19 @@
 #define MAX_ATOMS 1000
 #define MAX_LINE_LENGTH 256
 
-typedef struct {
+typedef struct Atom {
     float x, y, z;
     char atom_type[3];
     int idx;
+    int bond_order;
+    struct Atom* neighbour1;
+    struct Atom* neighbour2;
+    struct Atom* neighbour3;
+    struct Atom* neighbour4;
+
 } Atom;
 
-typedef struct {
+typedef struct Molecule {
     Atom atoms[MAX_ATOMS];
     int num_atoms;
 } Molecule;
@@ -27,15 +33,32 @@ Molecule parseSDF(const char *filename) {
     Molecule mol;
     mol.num_atoms = 0;
 
+    for (int i = 0; i < MAX_ATOMS; ++i) {
+        mol.atoms[i].neighbour1 = NULL;
+        mol.atoms[i].neighbour2 = NULL;
+        mol.atoms[i].neighbour3 = NULL;
+        mol.atoms[i].neighbour4 = NULL;
+    }
+
     char line[MAX_LINE_LENGTH];
     while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
+      // Parse the atoms and their coordinates
         if (strlen(line) > 3 && isdigit(line[4]) && isalpha(line[31])) {
-            // this wonky shit assumes tab separated coords
             sscanf(line, "%f\t%f\t%f\t%s", &mol.atoms[mol.num_atoms].x,
                    &mol.atoms[mol.num_atoms].y, &mol.atoms[mol.num_atoms].z,
                    mol.atoms[mol.num_atoms].atom_type);
             mol.atoms[mol.num_atoms].idx = mol.num_atoms + 1;
             ++mol.num_atoms;
+        }
+      // Parse the connectivity info block, atom count in SDF starts at 1
+        if (isdigit(line[2]) && isdigit(line[20])) {
+          int atom_idx, neighbour_idx, multiplicity;
+          sscanf(line, "%d %d %d", &atom_idx, &neighbour_idx, &multiplicity);
+          printf("idx %d, buurman %d, multipliciteit %d\n", atom_idx, neighbour_idx, multiplicity);
+          if (mol.atoms[atom_idx - 1].neighbour1 == NULL) mol.atoms[atom_idx - 1].neighbour1 = &mol.atoms[neighbour_idx - 1];
+          else if (mol.atoms[atom_idx - 1].neighbour2 == NULL) mol.atoms[atom_idx - 1].neighbour2 = &mol.atoms[neighbour_idx - 1];
+          else if (mol.atoms[atom_idx - 1].neighbour3 == NULL) mol.atoms[atom_idx - 1].neighbour3 = &mol.atoms[neighbour_idx - 1];
+          else if (mol.atoms[atom_idx - 1].neighbour4 == NULL) mol.atoms[atom_idx - 1].neighbour4 = &mol.atoms[neighbour_idx - 1];
         }
     }
 

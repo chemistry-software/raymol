@@ -16,8 +16,8 @@ int main(void)
     const int screenWidth = 1200;
     const int screenHeight = 800;
 
-    // Molecule ethanol = parseSDF("./resources/ethanol.sdf");
-    Molecule ethanol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
+    Molecule ethanol = parseSDF("./resources/ethanol.sdf");
+    // Molecule ethanol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
     normalizeCoordinates(&ethanol, screenWidth, screenHeight);
 
     printf("Number of atoms: %d\n", ethanol.num_atoms);
@@ -34,7 +34,7 @@ int main(void)
     camera.position = (Vector3){ 900.0f, 500.0f, 500.0f }; // Set camera position
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };   // Set camera target
     camera.up = (Vector3){ 0.0f, 100.0f, 0.0f };       // Set camera up vector
-    camera.fovy = 45.0f;                             // Set camera field of view
+    camera.fovy = 90.0f;                             // Set camera field of view
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
     //--------------------------------------------------------------------------------------
@@ -62,6 +62,34 @@ int main(void)
                 // Draw atoms
                 for (int i = 0; i < ethanol.num_atoms; i++) {
                     drawAtom(ethanol.atoms[i]);
+                    if (ethanol.atoms[i].neighbour1 != NULL) {
+                        DrawLine3D(
+                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
+                           (Vector3){ ethanol.atoms[i].neighbour1->x, ethanol.atoms[i].neighbour1->y, ethanol.atoms[i].neighbour1->z },
+                           GREEN
+                        );
+                    }
+                    if (ethanol.atoms[i].neighbour2 != NULL) {
+                        DrawLine3D(
+                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
+                           (Vector3){ ethanol.atoms[i].neighbour2->x, ethanol.atoms[i].neighbour2->y, ethanol.atoms[i].neighbour2->z },
+                           GREEN
+                        );
+                    }
+                    if (ethanol.atoms[i].neighbour3 != NULL) {
+                        DrawLine3D(
+                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
+                           (Vector3){ ethanol.atoms[i].neighbour3->x, ethanol.atoms[i].neighbour3->y, ethanol.atoms[i].neighbour3->z },
+                           GREEN
+                        );
+                    }
+                    if (ethanol.atoms[i].neighbour4 != NULL) {
+                        DrawLine3D(
+                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
+                           (Vector3){ ethanol.atoms[i].neighbour4->x, ethanol.atoms[i].neighbour4->y, ethanol.atoms[i].neighbour4->z },
+                           GREEN
+                        );
+                    }
                 }
 
             EndMode3D();
@@ -71,6 +99,7 @@ int main(void)
             for (int i = 0; i < ethanol.num_atoms; i++) {
                 DrawText(TextFormat("Atom %d: %s (%.4f, %.4f, %.4f)", ethanol.atoms[i].idx, ethanol.atoms[i].atom_type, ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z), 20, 40 + i * 10, 8, DARKGRAY);
             }
+
 
         EndDrawing();
         //----------------------------------------------------------------------------------
