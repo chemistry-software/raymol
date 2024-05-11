@@ -30,7 +30,7 @@ int main(void)
     
     
     Camera3D camera = { 0 };
-    camera.position = (Vector3){ 800.0f, 400.0f, 400.0f }; // Set camera position
+    camera.position = (Vector3){ 900.0f, 500.0f, 500.0f }; // Set camera position
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };   // Set camera target
     camera.up = (Vector3){ 0.0f, 100.0f, 0.0f };       // Set camera up vector
     camera.fovy = 45.0f;                             // Set camera field of view
@@ -43,7 +43,9 @@ int main(void)
         // Update
         //----------------------------------------------------------------------------------
         
-        // update stuff ++
+        UpdateCamera(&camera, CAMERA_FREE);
+
+        if (IsKeyPressed('Z')) camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
 
         //----------------------------------------------------------------------------------
 
@@ -104,5 +106,6 @@ void drawAtom(Atom atom)
         radius = 25.0f;
     }
 
-    DrawSphere((Vector3){atom.x, atom.y, atom.z}, 6.9, color);
+    DrawSphere((Vector3){atom.x, atom.y, atom.z}, radius, color);
+    DrawSphereWires((Vector3){atom.x, atom.y, atom.z}, radius, 10, 10, GREEN);
 } 
