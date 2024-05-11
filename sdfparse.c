@@ -9,6 +9,7 @@
 typedef struct {
     float x, y, z;
     char atom_type[3];
+    int idx;
 } Atom;
 
 typedef struct {
@@ -33,11 +34,16 @@ Molecule parseSDF(const char *filename) {
             sscanf(line, "%f\t%f\t%f\t%s", &mol.atoms[mol.num_atoms].x,
                    &mol.atoms[mol.num_atoms].y, &mol.atoms[mol.num_atoms].z,
                    mol.atoms[mol.num_atoms].atom_type);
-            mol.num_atoms++;
+            mol.atoms[mol.num_atoms].idx = mol.num_atoms + 1;
+            ++mol.num_atoms;
         }
     }
 
-    fclose(file);
+    if (fclose(file)) {
+      fprintf(stderr, "Error CLOSING file %s for some reason!\n", filename);
+      exit(1);
+    };
+
     return mol;
 }
 

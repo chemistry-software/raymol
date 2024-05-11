@@ -13,10 +13,11 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1200;
+    const int screenHeight = 800;
 
-    Molecule ethanol = parseSDF("./resources/ethanol.sdf");
+    // Molecule ethanol = parseSDF("./resources/ethanol.sdf");
+    Molecule ethanol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
     normalizeCoordinates(&ethanol, screenWidth, screenHeight);
 
     printf("Number of atoms: %d\n", ethanol.num_atoms);
@@ -34,6 +35,7 @@ int main(void)
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };   // Set camera target
     camera.up = (Vector3){ 0.0f, 100.0f, 0.0f };       // Set camera up vector
     camera.fovy = 45.0f;                             // Set camera field of view
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
     //--------------------------------------------------------------------------------------
 
@@ -67,7 +69,7 @@ int main(void)
             // Print atom coordinates
             DrawText("Atom Coordinates:", 20, 20, 20, DARKGRAY);
             for (int i = 0; i < ethanol.num_atoms; i++) {
-                DrawText(TextFormat("Atom %d: %s (%.4f, %.4f, %.4f)", i+1, ethanol.atoms[i].atom_type, ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z), 20, 40 + i * 10, 8, DARKGRAY);
+                DrawText(TextFormat("Atom %d: %s (%.4f, %.4f, %.4f)", ethanol.atoms[i].idx, ethanol.atoms[i].atom_type, ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z), 20, 40 + i * 10, 8, DARKGRAY);
             }
 
         EndDrawing();
@@ -106,6 +108,6 @@ void drawAtom(Atom atom)
         radius = 25.0f;
     }
 
-    DrawSphere((Vector3){atom.x, atom.y, atom.z}, radius, color);
-    DrawSphereWires((Vector3){atom.x, atom.y, atom.z}, radius, 10, 10, GREEN);
+    // DrawSphere((Vector3){atom.x, atom.y, atom.z}, radius, color);
+    DrawSphereWires((Vector3){atom.x, atom.y, atom.z}, radius, 25, 25, color);
 } 
