@@ -63,31 +63,31 @@ int main(void)
                 for (int i = 0; i < ethanol.num_atoms; i++) {
                     drawAtom(ethanol.atoms[i]);
                     if (ethanol.atoms[i].neighbour1 != NULL) {
-                        DrawLine3D(
+                        DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour1->x, ethanol.atoms[i].neighbour1->y, ethanol.atoms[i].neighbour1->z },
-                           GREEN
+                           10, 10, 20, GREEN
                         );
                     }
                     if (ethanol.atoms[i].neighbour2 != NULL) {
-                        DrawLine3D(
+                        DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour2->x, ethanol.atoms[i].neighbour2->y, ethanol.atoms[i].neighbour2->z },
-                           GREEN
+                           10, 10, 20, GREEN
                         );
                     }
                     if (ethanol.atoms[i].neighbour3 != NULL) {
-                        DrawLine3D(
+                        DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour3->x, ethanol.atoms[i].neighbour3->y, ethanol.atoms[i].neighbour3->z },
-                           GREEN
+                           10, 10, 20, GREEN
                         );
                     }
                     if (ethanol.atoms[i].neighbour4 != NULL) {
-                        DrawLine3D(
+                        DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour4->x, ethanol.atoms[i].neighbour4->y, ethanol.atoms[i].neighbour4->z },
-                           GREEN
+                           10, 10, 20, GREEN
                         );
                     }
                 }
