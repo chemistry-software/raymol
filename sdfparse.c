@@ -86,10 +86,10 @@ void normalizeCoordinates(Molecule *mol, int width, int height) {
     }
 
     // Scaling factors
-    float scale_x = (float)width / (max_x - min_x);
-    float scale_y = (float)height / (max_y - min_y);
+    float scale_x = (float)width / (max_x - min_x) / 100;
+    float scale_y = (float)height / (max_y - min_y) / 100;
     // Yeah well there is no depth to a screen lol
-    float scale_z = (float)height / (max_z - min_z);
+    float scale_z = (float)height / (max_z - min_z) / 100;
 
     // Normalize coordinates, lets hope we never need the original coords lmao
     for (int i = 0; i < mol->num_atoms; i++) {

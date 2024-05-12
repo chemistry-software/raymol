@@ -31,10 +31,10 @@ int main(void)
     
     
     Camera3D camera = { 0 };
-    camera.position = (Vector3){ 900.0f, 500.0f, 500.0f }; // Set camera position
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };   // Set camera target
-    camera.up = (Vector3){ 0.0f, 100.0f, 0.0f };       // Set camera up vector
-    camera.fovy = 90.0f;                             // Set camera field of view
+    camera.position = (Vector3){ 50.0f, 50.0f, 50.0f }; // Set camera position
+    camera.target = (Vector3){ 5.0f, 5.0f, 5.0f };   // Set camera target
+    camera.up = (Vector3){ 0.0f, 0.5f, 0.0f };       // Set camera up vector
+    camera.fovy = 45.0f;                             // Set camera field of view
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
     //--------------------------------------------------------------------------------------
@@ -45,7 +45,8 @@ int main(void)
         // Update
         //----------------------------------------------------------------------------------
         
-        UpdateCamera(&camera, CAMERA_FREE);
+        // UpdateCamera(&camera, CAMERA_FREE);
+        UpdateCamera(&camera, CAMERA_ORBITAL);
 
         if (IsKeyPressed('Z')) camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
 
@@ -66,28 +67,28 @@ int main(void)
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour1->x, ethanol.atoms[i].neighbour1->y, ethanol.atoms[i].neighbour1->z },
-                           10, 10, 20, GREEN
+                           0.1f, 0.1f, 20, GREEN
                         );
                     }
                     if (ethanol.atoms[i].neighbour2 != NULL) {
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour2->x, ethanol.atoms[i].neighbour2->y, ethanol.atoms[i].neighbour2->z },
-                           10, 10, 20, GREEN
+                           0.1f, 0.1f, 20, GREEN
                         );
                     }
                     if (ethanol.atoms[i].neighbour3 != NULL) {
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour3->x, ethanol.atoms[i].neighbour3->y, ethanol.atoms[i].neighbour3->z },
-                           10, 10, 20, GREEN
+                           0.1f, 0.1f, 20, GREEN
                         );
                     }
                     if (ethanol.atoms[i].neighbour4 != NULL) {
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour4->x, ethanol.atoms[i].neighbour4->y, ethanol.atoms[i].neighbour4->z },
-                           10, 10, 20, GREEN
+                           0.1f, 0.1f, 20, GREEN
                         );
                     }
                 }
@@ -124,17 +125,17 @@ void drawAtom(Atom atom)
     // Assign color based on atom type
     if (strcmp(atom.atom_type, "C") == 0) {
         color = BLACK;
-        radius = 70.0f;
+        radius = 70.0f/100;
     } else if (strcmp(atom.atom_type, "O") == 0) {
         color = RED;
-        radius = 60.0f;
+        radius = 60.0f/100;
     } else if (strcmp(atom.atom_type, "H") == 0) {
         color = LIGHTGRAY;
-        radius = 25.0f;
+        radius = 25.0f/100;
     } else {
         // Default color if atom type is unknown
         color = GRAY;
-        radius = 25.0f;
+        radius = 25.0f/100;
     }
 
     // DrawSphere((Vector3){atom.x, atom.y, atom.z}, radius, color);
