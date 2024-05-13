@@ -42,7 +42,7 @@ int main(void)
     // camera.projection = CAMERA_ORTHOGRAPHIC;             // Camera projection type
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
                                                         //
-    int cameraMode = CAMERA_FIRST_PERSON;
+    int cameraMode = CAMERA_THIRD_PERSON;
 
     //--------------------------------------------------------------------------------------
 
@@ -99,6 +99,10 @@ int main(void)
 
                     for (int j = 0; j < mol.atoms[i].num_neighbours; j++) {
                         if (!mol.atoms[i].bonds_drawn) {
+                            if (mol.atoms[i].bond_orders[j] > 1) {
+                                bondColor = BLUE;
+                            }
+
                             DrawCylinderWiresEx(
                                 (Vector3){ mol.atoms[i].x, mol.atoms[i].y, mol.atoms[i].z },
                                 (Vector3){ mol.atoms[i].neighbours[j]->x, mol.atoms[i].neighbours[j]->y, mol.atoms[i].neighbours[j]->z },
