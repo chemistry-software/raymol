@@ -1,13 +1,6 @@
 #include "raylib.h"
 #include "sdfparse.c"
-
-// #define DEBUG 1
-
-#ifdef DEBUG
-#  define D
-#else
-#  define D for(;0;)
-#endif
+#include "utils.h"
 
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -24,13 +17,16 @@ int main(void)
     const int screenWidth = 1200;
     const int screenHeight = 800;
 
-    // Molecule ethanol = parseSDF("./resources/ethanol.sdf");
-    Molecule ethanol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
-    normalizeCoordinates(&ethanol, screenWidth, screenHeight);
+    // Molecule mol = parseSDF("./resources/mol.sdf");
+    Molecule mol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
+    // normalizeCoordinates(&mol, screenWidth, screenHeight);
 
-    D printf("Number of atoms: %d\n", ethanol.num_atoms);
-    for (int i = 0; i < ethanol.num_atoms; i++) {
-        D printf("Atom %d: %s (%.4f, %.4f, %.4f)\n", i+1, ethanol.atoms[i].atom_type, ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z);
+    D printf("Number of atoms: %d\n", mol.num_atoms);
+    for (int i = 0; i < mol.num_atoms; i++) {
+        D printf(
+            "Atom %d: %s (%.4f, %.4f, %.4f) - neighbours: %d\n",
+            i+1, mol.atoms[i].atom_type, mol.atoms[i].x, mol.atoms[i].y, mol.atoms[i].z, mol.atoms[i].num_neighbours
+        );
     }
 
     InitWindow(screenWidth, screenHeight, "LOL dongs");
@@ -96,42 +92,20 @@ int main(void)
             BeginMode3D(camera);
 
                 // Draw atoms
-                for (int i = 0; i < ethanol.num_atoms; i++) {
-                    drawAtom(ethanol.atoms[i]);
+                for (int i = 0; i < mol.num_atoms; i++) {
+                    drawAtom(mol.atoms[i]);
                     
                     Color bondColor = GREEN;
-                    if (ethanol.atoms[i].bond_order != 1) { 
-                      bondColor = BLUE;
-                    }
-                    D printf("binding %d\n", ethanol.atoms[i].bond_order);
 
-                    if (ethanol.atoms[i].neighbour1 != NULL) {
-                        DrawCylinderWiresEx(
-                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
-                           (Vector3){ ethanol.atoms[i].neighbour1->x, ethanol.atoms[i].neighbour1->y, ethanol.atoms[i].neighbour1->z },
-                           0.1f, 0.1f, 20, bondColor
-                        );
-                    }
-                    if (ethanol.atoms[i].neighbour2 != NULL) {
-                        DrawCylinderWiresEx(
-                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
-                           (Vector3){ ethanol.atoms[i].neighbour2->x, ethanol.atoms[i].neighbour2->y, ethanol.atoms[i].neighbour2->z },
-                           0.1f, 0.1f, 20, bondColor
-                        );
-                    }
-                    if (ethanol.atoms[i].neighbour3 != NULL) {
-                        DrawCylinderWiresEx(
-                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
-                           (Vector3){ ethanol.atoms[i].neighbour3->x, ethanol.atoms[i].neighbour3->y, ethanol.atoms[i].neighbour3->z },
-                           0.1f, 0.1f, 20, bondColor
-                        );
-                    }
-                    if (ethanol.atoms[i].neighbour4 != NULL) {
-                        DrawCylinderWiresEx(
-                           (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
-                           (Vector3){ ethanol.atoms[i].neighbour4->x, ethanol.atoms[i].neighbour4->y, ethanol.atoms[i].neighbour4->z },
-                           0.1f, 0.1f, 20, bondColor
-                        );
+                    for (int j = 0; j < mol.atoms[i].num_neighbours; j++) {
+                        if (!mol.atoms[i].bonds_drawn) {
+                            DrawCylinderWiresEx(
+                                (Vector3){ mol.atoms[i].x, mol.atoms[i].y, mol.atoms[i].z },
+                                (Vector3){ mol.atoms[i].neighbours[j]->x, mol.atoms[i].neighbours[j]->y, mol.atoms[i].neighbours[j]->z },
+                                0.1f, 0.1f, 20, bondColor
+                            );
+                        }
+                        mol.atoms[i].bonds_drawn = true;
                     }
                 }
 
@@ -139,8 +113,16 @@ int main(void)
 
             // Print atom coordinates
             DrawText("Atom Coordinates:", 20, 20, 20, DARKGRAY);
-            for (int i = 0; i < ethanol.num_atoms; i++) {
-                DrawText(TextFormat("Atom %d: %s (%.4f, %.4f, %.4f)", ethanol.atoms[i].idx, ethanol.atoms[i].atom_type, ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z), 20, 40 + i * 10, 8, DARKGRAY);
+            for (int i = 0; i < mol.num_atoms; i++) {
+                DrawText(
+                    TextFormat(
+                        "Atom %d: %s (%.4f, %.4f, %.4f) neighbours: %d",
+                        mol.atoms[i].idx, mol.atoms[i].atom_type, mol.atoms[i].x, mol.atoms[i].y, mol.atoms[i].z, mol.atoms[i].num_neighbours
+                    ), 20, 40 + i * 10, 8, DARKGRAY
+                );
+
+            // Convenient place to reset the bond drawn flags
+            mol.atoms[i].bonds_drawn = false;
             }
 
 
@@ -164,7 +146,6 @@ void drawAtom(Atom atom)
     Color color;
     float radius;
 
-    // Assign color based on atom type
     if (strcmp(atom.atom_type, "C") == 0) {
         color = BLACK;
         radius = 70.0f/100;
@@ -175,11 +156,9 @@ void drawAtom(Atom atom)
         color = LIGHTGRAY;
         radius = 25.0f/100;
     } else {
-        // Default color if atom type is unknown
         color = GRAY;
         radius = 25.0f/100;
     }
 
-    // DrawSphere((Vector3){atom.x, atom.y, atom.z}, radius, color);
     DrawSphereWires((Vector3){atom.x, atom.y, atom.z}, radius, 25, 25, color);
 } 

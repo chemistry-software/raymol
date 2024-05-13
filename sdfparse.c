@@ -1,27 +1,30 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 
 #define MAX_ATOMS 1000
 #define MAX_LINE_LENGTH 256
+#define MAX_NEIGHBOURS 4
 
 typedef struct Atom {
     float x, y, z;
     char atom_type[3];
     int idx;
-    int bond_order;
-    struct Atom* neighbour1;
-    struct Atom* neighbour2;
-    struct Atom* neighbour3;
-    struct Atom* neighbour4;
-
+    int num_neighbours;
+    int bond_orders[MAX_NEIGHBOURS];
+    struct Atom* neighbours[MAX_NEIGHBOURS];
+    bool bonds_drawn;
 } Atom;
 
 typedef struct Molecule {
     Atom atoms[MAX_ATOMS];
     int num_atoms;
 } Molecule;
+
+void addBond(Atom* atom1, Atom* atom2, int bond_order);
 
 Molecule parseSDF(const char *filename) {
     FILE *file = fopen(filename, "r");
@@ -33,14 +36,6 @@ Molecule parseSDF(const char *filename) {
     Molecule mol;
     mol.num_atoms = 0;
 
-    for (int i = 0; i < MAX_ATOMS; ++i) {
-        mol.atoms[i].neighbour1 = NULL;
-        mol.atoms[i].neighbour2 = NULL;
-        mol.atoms[i].neighbour3 = NULL;
-        mol.atoms[i].neighbour4 = NULL;
-        mol.atoms[i].bond_order = 2;
-    }
-
     char line[MAX_LINE_LENGTH];
     while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
       // Parse the atoms and their coordinates
@@ -49,18 +44,15 @@ Molecule parseSDF(const char *filename) {
                    &mol.atoms[mol.num_atoms].y, &mol.atoms[mol.num_atoms].z,
                    mol.atoms[mol.num_atoms].atom_type);
             mol.atoms[mol.num_atoms].idx = mol.num_atoms + 1;
+            mol.atoms[mol.num_atoms].bonds_drawn = false;
             ++mol.num_atoms;
         }
       // Parse the connectivity info block, atom count in SDF starts at 1
         if (isdigit(line[2]) && isdigit(line[20])) {
-          int atom_idx, neighbour_idx, multiplicity;
-          sscanf(line, "%d %d %d", &atom_idx, &neighbour_idx, &multiplicity);
-          printf("idx %d, buurman %d, multipliciteit %d\n", atom_idx, neighbour_idx, multiplicity);
-          mol.atoms[atom_idx - 1].bond_order = multiplicity;
-          if (mol.atoms[atom_idx - 1].neighbour1 == NULL) mol.atoms[atom_idx - 1].neighbour1 = &mol.atoms[neighbour_idx - 1];
-          else if (mol.atoms[atom_idx - 1].neighbour2 == NULL) mol.atoms[atom_idx - 1].neighbour2 = &mol.atoms[neighbour_idx - 1];
-          else if (mol.atoms[atom_idx - 1].neighbour3 == NULL) mol.atoms[atom_idx - 1].neighbour3 = &mol.atoms[neighbour_idx - 1];
-          else if (mol.atoms[atom_idx - 1].neighbour4 == NULL) mol.atoms[atom_idx - 1].neighbour4 = &mol.atoms[neighbour_idx - 1];
+          int atom_idx, neighbour_idx, bond_order;
+          sscanf(line, "%d %d %d", &atom_idx, &neighbour_idx, &bond_order);
+          D printf("idx %d, buurman %d, multipliciteit %d\n", atom_idx, neighbour_idx, bond_order);
+          addBond(&mol.atoms[atom_idx - 1], &mol.atoms[neighbour_idx - 1], bond_order);
         }
     }
 
@@ -70,6 +62,20 @@ Molecule parseSDF(const char *filename) {
     };
 
     return mol;
+}
+
+void addBond(Atom* atom1, Atom* atom2, int bond_order) {
+    if (atom1->num_neighbours < MAX_NEIGHBOURS && atom2->num_neighbours < MAX_NEIGHBOURS) {
+        atom1->neighbours[atom1->num_neighbours] = atom2;
+        atom1->bond_orders[atom1->num_neighbours] = bond_order;
+        atom1->num_neighbours++;
+
+        atom2->neighbours[atom2->num_neighbours] = atom1;
+        atom2->bond_orders[atom2->num_neighbours] = bond_order;
+        atom2->num_neighbours++;
+    } else {
+        D printf("ERROR: MAX_NEIGHBOURS exceeded!\n");
+    }
 }
 
 void normalizeCoordinates(Molecule *mol, int width, int height) {
@@ -92,13 +98,13 @@ void normalizeCoordinates(Molecule *mol, int width, int height) {
     float scale_y = (float)height / (max_y - min_y) / 100;
     // Yeah well there is no depth to a screen lol
     float scale_z = (float)height / (max_z - min_z) / 100;
-/*
+
     // Normalize coordinates, lets hope we never need the original coords lmao
     for (int i = 0; i < mol->num_atoms; i++) {
         mol->atoms[i].x = (mol->atoms[i].x - min_x) * scale_x;
         mol->atoms[i].y = (mol->atoms[i].y - min_y) * scale_y;
         mol->atoms[i].z = (mol->atoms[i].z - min_z) * scale_z;
     }
-*/
+
 }
 
