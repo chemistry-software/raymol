@@ -1,6 +1,14 @@
 #include "raylib.h"
 #include "sdfparse.c"
 
+// #define DEBUG 1
+
+#ifdef DEBUG
+#  define D
+#else
+#  define D for(;0;)
+#endif
+
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
@@ -16,13 +24,13 @@ int main(void)
     const int screenWidth = 1200;
     const int screenHeight = 800;
 
-    Molecule ethanol = parseSDF("./resources/ethanol.sdf");
-    // Molecule ethanol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
+    // Molecule ethanol = parseSDF("./resources/ethanol.sdf");
+    Molecule ethanol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
     normalizeCoordinates(&ethanol, screenWidth, screenHeight);
 
-    printf("Number of atoms: %d\n", ethanol.num_atoms);
+    D printf("Number of atoms: %d\n", ethanol.num_atoms);
     for (int i = 0; i < ethanol.num_atoms; i++) {
-        printf("Atom %d: %s (%.4f, %.4f, %.4f)\n", i+1, ethanol.atoms[i].atom_type, ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z);
+        D printf("Atom %d: %s (%.4f, %.4f, %.4f)\n", i+1, ethanol.atoms[i].atom_type, ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z);
     }
 
     InitWindow(screenWidth, screenHeight, "LOL dongs");
@@ -31,11 +39,14 @@ int main(void)
     
     
     Camera3D camera = { 0 };
-    camera.position = (Vector3){ 50.0f, 50.0f, 50.0f }; // Set camera position
+    camera.position = (Vector3){ 10.0f, 10.0f, 10.0f }; // Set camera position
     camera.target = (Vector3){ 5.0f, 5.0f, 5.0f };   // Set camera target
-    camera.up = (Vector3){ 0.0f, 0.5f, 0.0f };       // Set camera up vector
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };       // Set camera up vector
     camera.fovy = 45.0f;                             // Set camera field of view
+    // camera.projection = CAMERA_ORTHOGRAPHIC;             // Camera projection type
     camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+                                                        //
+    int cameraMode = CAMERA_FIRST_PERSON;
 
     //--------------------------------------------------------------------------------------
 
@@ -44,11 +55,35 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        
-        // UpdateCamera(&camera, CAMERA_FREE);
-        UpdateCamera(&camera, CAMERA_ORBITAL);
+        if (IsKeyPressed(KEY_ONE))
+        {
+            cameraMode = CAMERA_FREE;
+            camera.up = (Vector3){ 0.0f, 1.0f, 0.0f }; // Reset roll
+        }
 
+        if (IsKeyPressed(KEY_TWO))
+        {
+            cameraMode = CAMERA_FIRST_PERSON;
+            camera.up = (Vector3){ 0.0f, 1.0f, 0.0f }; // Reset roll
+        }
+
+        if (IsKeyPressed(KEY_THREE))
+        {
+            cameraMode = CAMERA_THIRD_PERSON;
+            camera.up = (Vector3){ 0.0f, 1.0f, 0.0f }; // Reset roll
+        }
+
+        if (IsKeyPressed(KEY_FOUR))
+        {
+            cameraMode = CAMERA_ORBITAL;
+            camera.up = (Vector3){ 0.0f, 1.0f, 0.0f }; // Reset roll
+        }
+        
         if (IsKeyPressed('Z')) camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
+        
+        UpdateCamera(&camera, cameraMode);
+        // UpdateCamera(&camera, CAMERA_ORBITAL);
+
 
         //----------------------------------------------------------------------------------
 
@@ -63,32 +98,39 @@ int main(void)
                 // Draw atoms
                 for (int i = 0; i < ethanol.num_atoms; i++) {
                     drawAtom(ethanol.atoms[i]);
+                    
+                    Color bondColor = GREEN;
+                    if (ethanol.atoms[i].bond_order != 1) { 
+                      bondColor = BLUE;
+                    }
+                    D printf("binding %d\n", ethanol.atoms[i].bond_order);
+
                     if (ethanol.atoms[i].neighbour1 != NULL) {
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour1->x, ethanol.atoms[i].neighbour1->y, ethanol.atoms[i].neighbour1->z },
-                           0.1f, 0.1f, 20, GREEN
+                           0.1f, 0.1f, 20, bondColor
                         );
                     }
                     if (ethanol.atoms[i].neighbour2 != NULL) {
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour2->x, ethanol.atoms[i].neighbour2->y, ethanol.atoms[i].neighbour2->z },
-                           0.1f, 0.1f, 20, GREEN
+                           0.1f, 0.1f, 20, bondColor
                         );
                     }
                     if (ethanol.atoms[i].neighbour3 != NULL) {
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour3->x, ethanol.atoms[i].neighbour3->y, ethanol.atoms[i].neighbour3->z },
-                           0.1f, 0.1f, 20, GREEN
+                           0.1f, 0.1f, 20, bondColor
                         );
                     }
                     if (ethanol.atoms[i].neighbour4 != NULL) {
                         DrawCylinderWiresEx(
                            (Vector3){ ethanol.atoms[i].x, ethanol.atoms[i].y, ethanol.atoms[i].z },
                            (Vector3){ ethanol.atoms[i].neighbour4->x, ethanol.atoms[i].neighbour4->y, ethanol.atoms[i].neighbour4->z },
-                           0.1f, 0.1f, 20, GREEN
+                           0.1f, 0.1f, 20, bondColor
                         );
                     }
                 }
