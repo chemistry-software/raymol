@@ -24,7 +24,7 @@ typedef struct Molecule {
     int num_atoms;
 } Molecule;
 
-void addBond(Atom* atom1, Atom* atom2, int bond_order);
+void addBond(Atom *atom1, Atom *atom2, int bond_order);
 
 Molecule parseSDF(const char *filename) {
     FILE *file = fopen(filename, "r");
@@ -64,7 +64,7 @@ Molecule parseSDF(const char *filename) {
     return mol;
 }
 
-void addBond(Atom* atom1, Atom* atom2, int bond_order) {
+void addBond(Atom *atom1, Atom *atom2, int bond_order) {
     if (atom1->num_neighbours < MAX_NEIGHBOURS && atom2->num_neighbours < MAX_NEIGHBOURS) {
         atom1->neighbours[atom1->num_neighbours] = atom2;
         atom1->bond_orders[atom1->num_neighbours] = bond_order;
