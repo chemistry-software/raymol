@@ -1,6 +1,9 @@
 #include "raylib.h"
 #include "sdfparse.c"
-#include "utils.h"
+#include "debug.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition

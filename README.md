@@ -3,6 +3,8 @@
 ## Compilation
 ```sh
 zig cc -o test -lraylib -L /usr/local/lib -I /usr/local/include main.c -DDEBUG
+or
+gcc $(pkg-config --cflags raylib) -L/usr/local/lib main.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -o ass -DDEBUG 
 ```
 Or without DEBUG flag to omit debug logging
 
