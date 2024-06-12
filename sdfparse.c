@@ -38,6 +38,10 @@ Molecule parseSDF(const char *filename) {
 
   char line[MAX_LINE_LENGTH];
   while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
+    // break if you reach M  END
+    if (strncmp(line, "M  END", 6) == 0)
+      break;
+    
     // Parse the atoms and their coordinates
     if (isdigit(line[4]) && isdigit(line[6]) && isalpha(line[31])) {
       sscanf(line, "\t%f\t%f\t%f\t%s", &mol.atoms[mol.num_atoms].x,

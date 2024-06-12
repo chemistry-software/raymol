@@ -1,6 +1,7 @@
+#include "debug.h"
 #include "raylib.h"
 #include "sdfparse.c"
-#include "debug.h"
+#include <complex.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,14 +14,15 @@ void drawAtom(Atom atom);
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-int main(void) {
+int main(int argc, char *argv[]) {
   // Initialization
   //--------------------------------------------------------------------------------------
   const int screenWidth = 1200;
   const int screenHeight = 800;
 
   // Molecule mol = parseSDF("./resources/mol.sdf");
-  Molecule mol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
+  // Molecule mol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
+  Molecule mol = parseSDF("./resources/sildenafil.sdf");
   // normalizeCoordinates(&mol, screenWidth, screenHeight);
 
   D printf("Number of atoms: %d\n", mol.num_atoms);
@@ -39,10 +41,8 @@ int main(void) {
   camera.target = (Vector3){5.0f, 5.0f, 5.0f};      // Set camera target
   camera.up = (Vector3){0.0f, 1.0f, 0.0f};          // Set camera up vector
   camera.fovy = 45.0f;                              // Set camera field of view
-  // camera.projection = CAMERA_ORTHOGRAPHIC;             // Camera projection
-  // type
+  // camera.projection = CAMERA_ORTHOGRAPHIC;             // Camera projection type
   camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
-                                          //
   int cameraMode = CAMERA_THIRD_PERSON;
 
   //--------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ int main(void) {
   CloseWindow(); // Close window and OpenGL context
   //--------------------------------------------------------------------------------------
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 void drawAtom(Atom atom) {
