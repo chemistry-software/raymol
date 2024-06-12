@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   // normalizeCoordinates(&mol, screenWidth, screenHeight);
 
   int element_count;
-  Element* elements = parseCSV("resources/periodictable.csv", &element_count);
+  Element *elements = parseCSV("resources/periodictable.csv", &element_count);
 
   D printf("Number of atoms: %d\n", mol.num_atoms);
   for (int i = 0; i < mol.num_atoms; i++) {
@@ -46,7 +46,8 @@ int main(int argc, char *argv[]) {
   camera.target = (Vector3){5.0f, 5.0f, 5.0f};      // Set camera target
   camera.up = (Vector3){0.0f, 1.0f, 0.0f};          // Set camera up vector
   camera.fovy = 45.0f;                              // Set camera field of view
-  // camera.projection = CAMERA_ORTHOGRAPHIC;             // Camera projection type
+  // camera.projection = CAMERA_ORTHOGRAPHIC;             // Camera projection
+  // type
   camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
   int cameraMode = CAMERA_THIRD_PERSON;
 
@@ -123,7 +124,6 @@ int main(int argc, char *argv[]) {
 
   free(elements);
 
-
   CloseWindow(); // Close window and OpenGL context
   //--------------------------------------------------------------------------------------
 
@@ -135,7 +135,8 @@ void drawAtom(Atom atom) {
   float radius;
   int scalingFactor = 100;
 
-// radius is empirical from https://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page) 
+  // radius is empirical from
+  // https://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
   if (strcmp(atom.atom_type, "C") == 0) {
     color = BLACK;
     radius = 70.0f / scalingFactor;
@@ -160,20 +161,21 @@ void drawAtom(Atom atom) {
 }
 
 void drawBond(Atom atom) {
-      Color bondColor = GREEN;
-      for (int j = 0; j < atom.num_neighbours; j++) {
-        if (!atom.bonds_drawn) {
-          if (atom.bond_orders[j] > 1) {
-            bondColor = BLUE;
-          }
-
-          DrawCylinderWiresEx(
-              (Vector3){atom.x, atom.y, atom.z},
-              (Vector3){atom.neighbours[j]->x,
-                        atom.neighbours[j]->y,
-                        atom.neighbours[j]->z},
-              0.1f, 0.1f, 20, bondColor);
-        }
-        atom.bonds_drawn = true;
+  Color bondColor = GREEN;
+  for (int j = 0; j < atom.num_neighbours; j++) {
+    if (!atom.bonds_drawn) {
+      if (atom.bond_orders[j] == 2) {
+        bondColor = BLUE;
+      } else if (atom.bond_orders[j] >= 3) {
+        bondColor = RED;
       }
+
+      DrawCylinderWiresEx((Vector3){atom.x, atom.y, atom.z},
+                          (Vector3){atom.neighbours[j]->x,
+                                    atom.neighbours[j]->y,
+                                    atom.neighbours[j]->z},
+                          0.1f, 0.1f, 20, bondColor);
+    }
+    atom.bonds_drawn = true;
+  }
 }
