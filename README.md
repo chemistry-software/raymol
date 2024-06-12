@@ -15,4 +15,10 @@ Conversion command:
 obabel methyl-vinyl-ketone.sdf -Omethyl-vinyl-ketone.svg -xS
 ```
 
+## TODO
+- Drag and drop molfiles [Raylib supporst this nicely](https://www.raylib.com/examples/core/loader.html?name=core_drop_files)
+- Use meshes instead of DrawSphere/Cylinder for performance (GPU already getting toasty)
+- Use periodic table data for colors and bond properties etc, made an `Element` struct for this
+
+
 By [@bdnugget](https://t.me/bdnugget)
