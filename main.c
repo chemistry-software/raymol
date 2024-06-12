@@ -154,6 +154,9 @@ void drawAtom(Atom atom) {
   } else if (strcmp(atom.atom_type, "H") == 0) {
     color = LIGHTGRAY;
     radius = 25.0f / 100;
+  } else if (strcmp(atom.atom_type, "S") == 0) {
+    color = YELLOW;
+    radius = 100.0f / 100;
   } else {
     color = GRAY;
     radius = 25.0f / 100;

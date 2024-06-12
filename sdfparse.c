@@ -41,7 +41,11 @@ Molecule parseSDF(const char *filename) {
     // break if you reach M  END
     if (strncmp(line, "M  END", 6) == 0)
       break;
-    
+
+    // Ignore the line with bond and atom count, molfile version etc.
+    if (isdigit(line[0]) && isdigit(line[2]))
+      continue;
+
     // Parse the atoms and their coordinates
     if (isdigit(line[4]) && isdigit(line[6]) && isalpha(line[31])) {
       sscanf(line, "\t%f\t%f\t%f\t%s", &mol.atoms[mol.num_atoms].x,
