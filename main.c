@@ -11,6 +11,7 @@
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
 void drawAtom(Atom atom);
+void drawBond(Atom atom);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -95,24 +96,7 @@ int main(int argc, char *argv[]) {
     // Draw atoms
     for (int i = 0; i < mol.num_atoms; i++) {
       drawAtom(mol.atoms[i]);
-
-      Color bondColor = GREEN;
-
-      for (int j = 0; j < mol.atoms[i].num_neighbours; j++) {
-        if (!mol.atoms[i].bonds_drawn) {
-          if (mol.atoms[i].bond_orders[j] > 1) {
-            bondColor = BLUE;
-          }
-
-          DrawCylinderWiresEx(
-              (Vector3){mol.atoms[i].x, mol.atoms[i].y, mol.atoms[i].z},
-              (Vector3){mol.atoms[i].neighbours[j]->x,
-                        mol.atoms[i].neighbours[j]->y,
-                        mol.atoms[i].neighbours[j]->z},
-              0.1f, 0.1f, 20, bondColor);
-        }
-        mol.atoms[i].bonds_drawn = true;
-      }
+      drawBond(mol.atoms[i]);
     }
 
     EndMode3D();
@@ -173,4 +157,23 @@ void drawAtom(Atom atom) {
   }
 
   DrawSphereWires((Vector3){atom.x, atom.y, atom.z}, radius, 25, 25, color);
+}
+
+void drawBond(Atom atom) {
+      Color bondColor = GREEN;
+      for (int j = 0; j < atom.num_neighbours; j++) {
+        if (!atom.bonds_drawn) {
+          if (atom.bond_orders[j] > 1) {
+            bondColor = BLUE;
+          }
+
+          DrawCylinderWiresEx(
+              (Vector3){atom.x, atom.y, atom.z},
+              (Vector3){atom.neighbours[j]->x,
+                        atom.neighbours[j]->y,
+                        atom.neighbours[j]->z},
+              0.1f, 0.1f, 20, bondColor);
+        }
+        atom.bonds_drawn = true;
+      }
 }
