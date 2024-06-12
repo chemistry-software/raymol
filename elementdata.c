@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define MAX_ELEMENTS 120
-#define MAX_LINE_LENGTH 2048
+#define MAX_CSV_LINE_LENGTH 2048
 
 typedef struct {
     char name[50];
@@ -100,7 +100,7 @@ Element* parseCSV(const char* filename, int* element_count) {
         return NULL;
     }
 
-    char line[MAX_LINE_LENGTH];
+    char line[MAX_CSV_LINE_LENGTH];
     fgets(line, sizeof(line), file); // Skip the header line
 
     *element_count = 0;
@@ -156,14 +156,31 @@ Element* parseCSV(const char* filename, int* element_count) {
     return elements;
 }
 
-int main() {
+
+int testParser() {
     int element_count;
     Element* elements = parseCSV("resources/periodictable.csv", &element_count);
     if (elements) {
         for (int i = 0; i < element_count; i++) {
-            printf("Element: %s (%s), Atomic Mass: %.2f, Atomic Radius: %.2f\n", elements[i].name, elements[i].symbol, elements[i].atomic_mass, elements[i].electron_affinity);
+            printf("Element: %s (%s)\n", elements[i].name, elements[i].symbol);
+            printf("Atomic Mass: %.2f\n", elements[i].atomic_mass);
+            printf("Category: %s\n", elements[i].category);
+            printf("Atomic Number: %d\n", elements[i].number);
+            printf("Period: %d\n", elements[i].period);
+            printf("Group: %d\n", elements[i].group);
+            printf("Phase: %s\n", elements[i].phase);
+            printf("Summary: %s\n", elements[i].summary);
+            printf("Shells: %s\n", elements[i].shells);
+            printf("Electron Configuration: %s\n", elements[i].electron_configuration);
+            printf("Electron Configuration Semantic: %s\n", elements[i].electron_configuration_semantic);
+            printf("Electron Affinity: %.2f\n", elements[i].electron_affinity);
+            printf("Electronegativity Pauling: %.2f\n", elements[i].electronegativity_pauling);
+            printf("Ionization Energies: %s\n", elements[i].ionization_energies);
+            printf("CPK Hex Color: %s\n", elements[i].cpk_hex);
+            printf("Block: %s\n", elements[i].block);
         }
         free(elements);
     }
     return 0;
 }
+

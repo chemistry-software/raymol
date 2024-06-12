@@ -39,11 +39,13 @@ Molecule parseSDF(const char *filename) {
   char line[MAX_LINE_LENGTH];
   while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
     // break if you reach M  END
-    if (strncmp(line, "M  END", 6) == 0)
+    if (strncmp(line, "M  END", 6) == 0) {
+      D printf("Reached END\n");
       break;
+    }
 
-    // Ignore the line with bond and atom count, molfile version etc.
-    if (isdigit(line[0]) && isdigit(line[2]))
+    // continue of line contains V2000 or V3000
+    if (strstr(line, "V2000") || strstr(line, "V3000"))
       continue;
 
     // Parse the atoms and their coordinates

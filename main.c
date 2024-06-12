@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "elementdata.c"
 #include "raylib.h"
 #include "sdfparse.c"
 #include <complex.h>
@@ -24,6 +25,9 @@ int main(int argc, char *argv[]) {
   // Molecule mol = parseSDF("./resources/methyl-vinyl-ketone.sdf");
   Molecule mol = parseSDF("./resources/sildenafil.sdf");
   // normalizeCoordinates(&mol, screenWidth, screenHeight);
+
+  int element_count;
+  Element* elements = parseCSV("resources/periodictable.csv", &element_count);
 
   D printf("Number of atoms: %d\n", mol.num_atoms);
   for (int i = 0; i < mol.num_atoms; i++) {
@@ -133,7 +137,8 @@ int main(int argc, char *argv[]) {
   // De-Initialization
   //--------------------------------------------------------------------------------------
 
-  // TODO: Unload all loaded data (textures, fonts, audio) here!
+  free(elements);
+
 
   CloseWindow(); // Close window and OpenGL context
   //--------------------------------------------------------------------------------------
@@ -144,22 +149,27 @@ int main(int argc, char *argv[]) {
 void drawAtom(Atom atom) {
   Color color;
   float radius;
+  int scalingFactor = 100;
 
+// radius is empirical from https://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page) 
   if (strcmp(atom.atom_type, "C") == 0) {
     color = BLACK;
-    radius = 70.0f / 100;
+    radius = 70.0f / scalingFactor;
   } else if (strcmp(atom.atom_type, "O") == 0) {
     color = RED;
-    radius = 60.0f / 100;
+    radius = 60.0f / scalingFactor;
   } else if (strcmp(atom.atom_type, "H") == 0) {
     color = LIGHTGRAY;
-    radius = 25.0f / 100;
+    radius = 25.0f / scalingFactor;
   } else if (strcmp(atom.atom_type, "S") == 0) {
     color = YELLOW;
-    radius = 100.0f / 100;
+    radius = 100.0f / scalingFactor;
+  } else if (strcmp(atom.atom_type, "N") == 0) {
+    color = BLUE;
+    radius = 65.0f / scalingFactor;
   } else {
     color = GRAY;
-    radius = 25.0f / 100;
+    radius = 25.0f / scalingFactor;
   }
 
   DrawSphereWires((Vector3){atom.x, atom.y, atom.z}, radius, 25, 25, color);
