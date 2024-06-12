@@ -10,8 +10,9 @@
 //------------------------------------------------------------------------------------------
 // Types and Structures Definition
 //------------------------------------------------------------------------------------------
-void drawAtom(Atom atom);
+void drawAtom(Atom atom, Model sphereModel);
 void drawBond(Atom atom);
+static Mesh GenMeshCustom(void);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -50,6 +51,10 @@ int main(int argc, char *argv[]) {
   // type
   camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
   int cameraMode = CAMERA_THIRD_PERSON;
+
+  // Model sphereModel = LoadModelFromMesh(GenMeshCustom());  
+  Model sphereModel = LoadModelFromMesh(GenMeshSphere(1.0f, 25, 25));
+
 
   //--------------------------------------------------------------------------------------
 
@@ -96,7 +101,7 @@ int main(int argc, char *argv[]) {
 
     // Draw atoms
     for (int i = 0; i < mol.num_atoms; i++) {
-      drawAtom(mol.atoms[i]);
+      drawAtom(mol.atoms[i], sphereModel);
       drawBond(mol.atoms[i]);
     }
 
@@ -123,6 +128,7 @@ int main(int argc, char *argv[]) {
   //--------------------------------------------------------------------------------------
 
   free(elements);
+  UnloadModel(sphereModel);
 
   CloseWindow(); // Close window and OpenGL context
   //--------------------------------------------------------------------------------------
@@ -130,7 +136,27 @@ int main(int argc, char *argv[]) {
   return EXIT_SUCCESS;
 }
 
-void drawAtom(Atom atom) {
+void drawBond(Atom atom) {
+  Color bondColor = GREEN;
+  for (int j = 0; j < atom.num_neighbours; j++) {
+    if (!atom.bonds_drawn) {
+      if (atom.bond_orders[j] == 2) {
+        bondColor = BLUE;
+      } else if (atom.bond_orders[j] >= 3) {
+        bondColor = RED;
+      }
+
+      DrawCylinderWiresEx((Vector3){atom.x, atom.y, atom.z},
+                          (Vector3){atom.neighbours[j]->x,
+                                    atom.neighbours[j]->y,
+                                    atom.neighbours[j]->z},
+                          0.1f, 0.1f, 20, bondColor);
+    }
+    atom.bonds_drawn = true;
+  }
+}
+
+void drawAtom(Atom atom, Model sphereModel) {
   Color color;
   float radius;
   int scalingFactor = 100;
@@ -157,25 +183,52 @@ void drawAtom(Atom atom) {
     radius = 25.0f / scalingFactor;
   }
 
-  DrawSphereWires((Vector3){atom.x, atom.y, atom.z}, radius, 25, 25, color);
+  DrawModelWires(sphereModel, (Vector3){atom.x, atom.y, atom.z}, radius, color);
+
 }
 
-void drawBond(Atom atom) {
-  Color bondColor = GREEN;
-  for (int j = 0; j < atom.num_neighbours; j++) {
-    if (!atom.bonds_drawn) {
-      if (atom.bond_orders[j] == 2) {
-        bondColor = BLUE;
-      } else if (atom.bond_orders[j] >= 3) {
-        bondColor = RED;
-      }
+// Generate a simple triangle mesh from code
+static Mesh GenMeshCustom(void)
+{
+    Mesh mesh = { 0 };
+    mesh.triangleCount = 1;
+    mesh.vertexCount = mesh.triangleCount*3;
+    mesh.vertices = (float *)MemAlloc(mesh.vertexCount*3*sizeof(float));    // 3 vertices, 3 coordinates each (x, y, z)
+    mesh.texcoords = (float *)MemAlloc(mesh.vertexCount*2*sizeof(float));   // 3 vertices, 2 coordinates each (x, y)
+    mesh.normals = (float *)MemAlloc(mesh.vertexCount*3*sizeof(float));     // 3 vertices, 3 coordinates each (x, y, z)
 
-      DrawCylinderWiresEx((Vector3){atom.x, atom.y, atom.z},
-                          (Vector3){atom.neighbours[j]->x,
-                                    atom.neighbours[j]->y,
-                                    atom.neighbours[j]->z},
-                          0.1f, 0.1f, 20, bondColor);
-    }
-    atom.bonds_drawn = true;
-  }
+    // Vertex at (0, 0, 0)
+    mesh.vertices[0] = 0;
+    mesh.vertices[1] = 0;
+    mesh.vertices[2] = 0;
+    mesh.normals[0] = 0;
+    mesh.normals[1] = 1;
+    mesh.normals[2] = 0;
+    mesh.texcoords[0] = 0;
+    mesh.texcoords[1] = 0;
+
+    // Vertex at (1, 0, 2)
+    mesh.vertices[3] = 1;
+    mesh.vertices[4] = 0;
+    mesh.vertices[5] = 2;
+    mesh.normals[3] = 0;
+    mesh.normals[4] = 1;
+    mesh.normals[5] = 0;
+    mesh.texcoords[2] = 0.5f;
+    mesh.texcoords[3] = 1.0f;
+
+    // Vertex at (2, 0, 0)
+    mesh.vertices[6] = 2;
+    mesh.vertices[7] = 0;
+    mesh.vertices[8] = 0;
+    mesh.normals[6] = 0;
+    mesh.normals[7] = 1;
+    mesh.normals[8] = 0;
+    mesh.texcoords[4] = 1;
+    mesh.texcoords[5] =0;
+
+    // Upload mesh data from CPU (RAM) to GPU (VRAM) memory
+    UploadMesh(&mesh, false);
+
+    return mesh;
 }
